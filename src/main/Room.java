@@ -51,7 +51,7 @@ public class Room {
 
 	public void close() {
 		// TODO Auto-generated method stub
-		status.equals("CLOSED");
+		this.status = "CLOSED";
 		
 	}
 
