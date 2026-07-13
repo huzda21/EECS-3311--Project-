@@ -3,7 +3,8 @@ import java.util.*;
 
 public class Admin extends User{
 	private String adminId;
-	protected List<Room> rooms=new ArrayList<>();
+	protected RoomList roomList = new RoomList();
+	
 	public Admin(String id, String email, String password, String adminId) {
 		// TODO Auto-generated constructor stub
 		super(id, email, password,true);
@@ -11,13 +12,12 @@ public class Admin extends User{
 	}
 	
 	
-
 	public String getAdminId() {
 		return adminId;
 	}
 	
 	public void addRoom(Room room) {
-		rooms.add(room);
+		roomList.addRoom(room);
 	}
 	
 	public void closeRoom(Room room) {
@@ -29,9 +29,13 @@ public class Admin extends User{
 	}
 	
 	public void disableRoom(Room room) {
-		room.enable();
+		room.disable();
 	}
 	
+	
+	public RoomIterator getRoomIterator(){
+    	return roomList.createIterator();
+}
 
 
 
