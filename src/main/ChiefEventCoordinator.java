@@ -23,7 +23,7 @@ public class ChiefEventCoordinator extends Admin{
 		for(char i='A';i<='Z';i++) {
 			chars.add(i);
 		}
-		for(char i='a';i<='b';i++) {
+		for(char i='a';i<='z';i++) {
 			chars.add(i);
 		}
 		for(char i='0';i<='9';i++) {
@@ -45,6 +45,16 @@ public class ChiefEventCoordinator extends Admin{
 			password+=chars.get(index);
 		}
 		Admin newAdmin= new Admin(id,email,password,adminId);
+		System.out.println("Chief Corrdinator Temparary password for "+email+" is: "+password);
 		return newAdmin;
+		
+		
+		
+		
+	}
+	@Override
+	public String getRoleName() {
+		// TODO Auto-generated method stub
+		return "Chief Event Coordinator";
 	}
 }

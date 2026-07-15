@@ -5,7 +5,7 @@ public abstract class User {
 	private String id;
 	private String email;
 	private String password;
-	private boolean isVerified;
+	protected boolean isVerified;
 	private static int counter=0;
 	public User(String id, String email, String password, boolean isVerified) {
 		super();
@@ -50,6 +50,10 @@ public abstract class User {
 		return this.password.equals(passowrd);
 	}
 	
+	public void logout() {
+		System.out.println(email+" is logged out");
+	}
+	
 	public abstract double getHourlyRate();
 	
 	
@@ -58,7 +62,7 @@ public abstract class User {
 			throw new IllegalStateException("Account is not verified");
 		}
 		
-		if(!room.isAvailable) {
+		if(!room.isAvailable()) {
 			throw new IllegalStateException("The room you are looking for isn't available");	
 		}
 		double bookingDuration=  Duration.between(start, end).toHours();
@@ -71,6 +75,17 @@ public abstract class User {
 		
 		return newBooking;
 	}
+
+
+
+
+	protected void setVerified(boolean b) {
+		this.isVerified=b;
+	}
+
+
+
+	public abstract String  getRoleName();
 	
 	
 	

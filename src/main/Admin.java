@@ -45,4 +45,18 @@ public class Admin extends User{
 		return 0;
 	}
 
+
+	@Override
+	public String getRoleName() {
+		// TODO Auto-generated method stub
+		return "Admin";
+	}
+
+
+	
+
+
+	
+	
+
 }

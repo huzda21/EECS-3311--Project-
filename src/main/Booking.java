@@ -9,17 +9,18 @@ public class Booking {
 	private LocalDateTime startTime;
 	private LocalDateTime endTime;
 	private String status;
-	private double Deposit;
+	private double deposit;
 	private double total;
 	private LocalDateTime checkInTime;
-	public Booking(String bookingId, LocalDateTime startTime, LocalDateTime endTime, String status, double deposit,
-			double total, LocalDateTime checkInTime) {
+	private Payment payment;
+	public Booking(String bookingId,Room room, LocalDateTime startTime, LocalDateTime endTime, String status,double deposit,double total,LocalDateTime checkInTime) {
 		super();
 		this.bookingId = bookingId;
+		this.room=room;
 		this.startTime = startTime;
 		this.endTime = endTime;
 		this.status = status;
-		Deposit = deposit;
+		this.deposit = deposit;
 		this.total = total;
 		this.checkInTime = checkInTime;
 	}
@@ -55,10 +56,10 @@ public class Booking {
 	
 	public boolean depositBack(){
         if(checkInTime!=null) {
-            System.out.println("[Booking " + bookingId + "] Deposit applied to final cost.");
+            System.out.println("[Booking " +bookingId+ "] Deposit applied to final cost.");
             return true;
         }
-        System.out.println("[Booking " + bookingId + "] Deposit forfeited (no check-in).");
+        System.out.println("[Booking " +bookingId+ "] Deposit forfeited (no check-in).");
         return false;
     }
 
@@ -83,7 +84,7 @@ public class Booking {
 	}
 
 	public double getDeposit() {
-		return Deposit;
+		return deposit;
 	}
 
 	public double getTotal() {
@@ -92,6 +93,14 @@ public class Booking {
 
 	public LocalDateTime getCheckInTime() {
 		return checkInTime;
+	}
+	
+	public Payment getPayment() {
+		return payment;
+	}
+	
+	public void setPayment(Payment payment) {
+		this.payment=payment;
 	}
 	
 	
