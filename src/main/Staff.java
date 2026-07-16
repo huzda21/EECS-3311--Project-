@@ -14,5 +14,10 @@ public class Staff extends User{
 		return 40.0;
 	}
 	
+	@Override
+	public String getRoleName() {
+	    return "Staff";
+	}
+	
 	
 }

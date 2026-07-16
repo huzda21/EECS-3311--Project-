@@ -14,5 +14,9 @@ public class Partner extends User {
 		return 50.0;
 	}
 	
+	@Override
+	public String getRoleName() {
+	    return "Partner";
+	}
 	
 }

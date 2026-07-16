@@ -14,5 +14,8 @@ public class Student  extends User{
 		return 20.0;
 	}
 	
-	
+	@Override
+	public String getRoleName() {
+	    return "Student";
+	}
 }
