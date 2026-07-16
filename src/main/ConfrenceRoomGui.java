@@ -334,7 +334,8 @@ public class ConfrenceRoomGui extends JFrame {
             if (!requireAdmin()) return;
             try {
                 Room r = new Room(roomNum.getText().trim(), building.getText().trim(),
-                        Integer.parseInt(capacity.getText().trim()));
+                Integer.parseInt(capacity.getText().trim()), "AVAILABLE");
+
                 ((Admin) AppData.currentUser).addRoom(r);
                 AppData.rooms.add(r);
                 log("[Admin] Room added: " + r.getRoomNumber());
