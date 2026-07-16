@@ -117,6 +117,22 @@ public class ConfrenceRoomGui extends JFrame {
                 String email = regEmail.getText().trim();
                 String pw = new String(regPassword.getPassword());
                 long num = Long.parseLong(regNumber.getText().trim());
+                
+                //check if email exists
+                for (User existing : AppData.users) {
+                    if (existing.getEmail().equalsIgnoreCase(email)) {
+                        JOptionPane.showMessageDialog(this, "An account with this email already exists.");
+                        return;
+                    }
+                }
+
+                //password requirements
+                if (!pw.matches("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z\\d]).{8,}$")) {
+                    JOptionPane.showMessageDialog(this,
+                        "Password must be at least 8 characters and contain an uppercase letter, lowercase letter, number, and symbol.");
+                    return;
+                }
+                
                 String id = "U-" + System.currentTimeMillis() % 100000;
                 User u;
                 switch ((String) regType.getSelectedItem()) {
