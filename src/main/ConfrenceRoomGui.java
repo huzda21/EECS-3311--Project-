@@ -134,14 +134,12 @@ public class ConfrenceRoomGui extends JFrame {
                 }
                 
                 String id = "U-" + System.currentTimeMillis() % 100000;
-                User u;
-                switch ((String) regType.getSelectedItem()) {
-                    case "Faculty": u = new Faculty(id, email, pw, num); break;
-                    case "Staff": u = new Staff(id, email, pw, num); break;
-                    case "Partner": u = new Partner(id, email, pw, num); break;
-                    default: u = new Student(id, email, pw, num);
-                }
+                // Factory Method in action: GUI only knows the account type string,
+                // UserFactory decides which concrete User subclass to build.
+                String accountType = (String) regType.getSelectedItem();
+                User u = UserFactory.createUser(accountType, id, email, pw, true, num);
                 u.setVerified(true); // simulate university/partner verification step
+
                 AppData.users.add(u);
                 log("[Account] Registered " + u.getRoleName() + " account: " + email);
                 JOptionPane.showMessageDialog(this, "Registered successfully. You can now log in.");
