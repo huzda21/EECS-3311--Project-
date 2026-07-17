@@ -236,7 +236,7 @@ public class ConfrenceRoomGui extends JFrame {
                 Badge badge = new Badge("BADGE-" + AppData.currentUser.getId());
                 sensor.scanBadge(badge);
                 booking.checkIn(badge);
-                sensor.findOccupancy(1);
+                sensor.findOccupancy();
                 sensor.sendData();
 
                 promptPayment(booking);
