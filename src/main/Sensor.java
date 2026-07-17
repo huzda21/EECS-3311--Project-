@@ -1,7 +1,7 @@
 //Incorporate observer pattern here
 package main;
 
-public class Sensor implements SensorObserver {
+public class Sensor{
     private String sensorId;
     private Room room;
 
