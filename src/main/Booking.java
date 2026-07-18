@@ -44,11 +44,13 @@ public class Booking {
 	
 	public boolean cancelBooking() {
 	    if(LocalDateTime.now().isBefore(startTime)) {
-	        status = "CANCELLED";
+	        status ="CANCELLED";
+	        room.setStatus("AVAILABLE");
 	        return true;
 	    }
 	    return false;
 	}
+
 	
 	public boolean extendBooking(LocalDateTime updatedEnd) {
 		if(updatedEnd==null||!updatedEnd.isAfter(endTime)||!LocalDateTime.now().isBefore(endTime)||!room.isAvailable()||!roomExtension(room, startTime, updatedEnd, this.bookingId)) {
