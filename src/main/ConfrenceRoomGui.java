@@ -134,11 +134,19 @@ public class ConfrenceRoomGui extends JFrame {
                 }
                 
                 String id = "U-" + System.currentTimeMillis() % 100000;
-                // Factory Method in action: GUI only knows the account type string,
-                // UserFactory decides which concrete User subclass to build.
                 String accountType = (String) regType.getSelectedItem();
-                User u = UserFactory.createUser(accountType, id, email, pw, true, num);
-                u.setVerified(true); // simulate university/partner verification step
+                //checks when student account selected that the email is from yorku
+                boolean isVerified;
+                if (accountType.equalsIgnoreCase("Student") || accountType.equalsIgnoreCase("Faculty")) {
+                    isVerified = email.toLowerCase().endsWith("@yorku.ca");
+                    if (!isVerified) {
+                        JOptionPane.showMessageDialog(this, "University accounts must use a valid @yorku.ca email.");
+                        return;
+                    }
+                } else {
+                    isVerified = true; // Staff/Partner accounts don't require university verification
+                }
+                User u = UserFactory.createUser(accountType, id, email, pw, isVerified, num);
 
                 AppData.users.add(u);
                 log("[Account] Registered " + u.getRoleName() + " account: " + email);
