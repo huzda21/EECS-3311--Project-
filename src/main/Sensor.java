@@ -20,9 +20,16 @@ public class Sensor{
 
     public void scanBadge(Badge badge) {
         badge.getBadgeId();
+        notifyObservers(badge);
     }
 
-    public void sendData() {
+    public void notifyObservers(Badge badge) {
+    	for(SensorObserver o:observers) {
+    		o.update(badge);
+    	}
+    }
+
+	public void sendData() {
         room.getRoomNumber();
     }
 	

@@ -6,13 +6,13 @@ import java.util.Random;
 public class ChiefEventCoordinator extends Admin{
 	private static ChiefEventCoordinator instance;
 
-	public ChiefEventCoordinator(String id, String email, String password, String adminId) {
+	private ChiefEventCoordinator(String id, String email, String password, String adminId) {
 		super(id,email,password,adminId);
 	}
 	
 	public static ChiefEventCoordinator getInstance() {
 		if(instance==null) {
-			instance=new ChiefEventCoordinator("cd12345678","me@gmail.com","me@32wells","ab87654321");
+			instance=new ChiefEventCoordinator("cd12345678","coordinator@yorku.ca","mycoordPassword@12","ab87654321");
 			
 		}
 		return instance;

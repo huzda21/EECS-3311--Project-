@@ -13,7 +13,8 @@ public class Booking {
 	private double total;
 	private LocalDateTime checkInTime;
 	private Payment payment;
-	public Booking(String bookingId,Room room, LocalDateTime startTime, LocalDateTime endTime, String status,double deposit,double total,LocalDateTime checkInTime) {
+	private User bookedBy;
+	public Booking(String bookingId,Room room, LocalDateTime startTime, LocalDateTime endTime, String status,double deposit,double total,LocalDateTime checkInTime,User bookedBy) {
 		super();
 		this.bookingId = bookingId;
 		this.room=room;
@@ -23,6 +24,7 @@ public class Booking {
 		this.deposit = deposit;
 		this.total = total;
 		this.checkInTime = checkInTime;
+		this.bookedBy=bookedBy;
 	}
 	
 	public void createBooking() {
@@ -32,8 +34,8 @@ public class Booking {
 	
 	public boolean editBooking(LocalDateTime start, LocalDateTime end) {
 	    if(LocalDateTime.now().isBefore(startTime)) {
-	        this.startTime = start;
-	        this.endTime = end;
+	        this.startTime= start;
+	        this.endTime= end;
 	        return true;
 	    }
 	    return false;
@@ -48,13 +50,30 @@ public class Booking {
 	    return false;
 	}
 	
-	public void extendBooking(LocalDateTime end) {
-		if(LocalDateTime.now().isBefore(endTime) && room.isAvailable()) {
-			
-			this.endTime=end;
+	public boolean extendBooking(LocalDateTime updatedEnd) {
+		if(updatedEnd==null||!updatedEnd.isAfter(endTime)||!LocalDateTime.now().isBefore(endTime)||!room.isAvailable()||!roomExtension(room, startTime, updatedEnd, this.bookingId)) {
+			return false;
 		}
+		double rate=bookedBy.getHourlyRate();
+		double extension=java.time.Duration.between(endTime, updatedEnd).toMinutes()/60.0;
+		this.total+=rate *extension;
+		this.endTime = updatedEnd;
+		return true;
 	}
 	
+	public static boolean roomExtension(Room room2, LocalDateTime startTime2, LocalDateTime end, String bookingId2) {
+		for(Booking b:AppData.bookings) {
+			if(b.getRoom()!=room2) continue;
+			if(bookingId2!=null&&b.getBookingId().equals(bookingId2)) continue;
+			if("CANCELLED".equals(b.getStatus())) continue;
+			boolean overlaps=startTime2.isBefore(b.getEndTime())&&b.getStartTime().isBefore(end);
+			if (overlaps) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public boolean checkIn(Badge badge) {
 		this.checkInTime=LocalDateTime.now();
 		this.status="CONFIRMED";
@@ -69,15 +88,11 @@ public class Booking {
 
 	public boolean depositBack() {
 
-	    // User checked in within 30 minutes of the booking start
-	    if (checkInTime != null &&
-	        !checkInTime.isAfter(startTime.plusMinutes(30))) {
-
-	        total -= deposit;
+	    if (checkInTime!=null&&!checkInTime.isAfter(startTime.plusMinutes(30))) {
+	    	total-=deposit;
 	        return true;
 	    }
 
-	    // Deposit is forfeited
 	    return false;
 	}
 	
@@ -120,6 +135,9 @@ public class Booking {
 	
 	public void setPayment(Payment payment) {
 		this.payment=payment;
+	}
+	public User getBookedBy() {
+		return this.bookedBy;
 	}
 	
 	

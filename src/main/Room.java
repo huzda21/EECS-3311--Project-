@@ -54,7 +54,7 @@ public class Room implements SensorObserver {
 
 	public void close() {
 		// TODO Auto-generated method stub
-		this.status = "CLOSED";
+		this.status="CLOSED";
 		
 	}
 
@@ -65,7 +65,7 @@ public class Room implements SensorObserver {
 	}
 	
 	public void disable() {
-		this.status="DISABLE";
+		this.status="DISABLED";
 	}
 	
 	public boolean isClosed() {

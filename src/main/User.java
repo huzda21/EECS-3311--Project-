@@ -65,13 +65,22 @@ public abstract class User {
 		if(!room.isAvailable()) {
 			throw new IllegalStateException("The room you are looking for isn't available");	
 		}
-		double bookingDuration=  Duration.between(start, end).toHours();
+		
+		if(!end.isAfter(start)) {
+			throw new IllegalStateException("tart time must be before end time");	
+
+		}
+		
+		if(!Booking.roomExtension(room,start,end,null)) {
+			throw new IllegalStateException("This room is already booked for part of that time range");
+		}
+		double bookingDuration=  Duration.between(start, end).toMinutes()/60.0;
 		double rate=getHourlyRate()*bookingDuration;
 		double deposit=getHourlyRate();
 		
 		counter++;
 		String bookId=room.getRoomNumber()+""+counter;
-		Booking newBooking=new Booking(bookId, room, start, end, "PENDING",deposit,rate, start);
+		Booking newBooking=new Booking(bookId, room, start, end, "PENDING",deposit,rate, start,this);
 		
 		return newBooking;
 	}
