@@ -226,9 +226,6 @@ public class ConfrenceRoomGui extends JFrame {
                 LocalDateTime end=start.plusMinutes(Math.round(hours*60));
 
                 Booking booking=AppData.currentUser.booking(room, start, end);
-                AppData.bookings.add(booking);
-                log("[Booking] Created "+booking.getBookingId()+" for room "+room.getRoomNumber()
-                        + " | "+hours+"h | total=$"+booking.getTotal()+" deposit=$"+booking.getDeposit());
                 Sensor sensor = new Sensor("sens-" + room.getRoomNumber(), room);
                 sensor.addObserver(room);
                 Badge badge = new Badge("bad-" + AppData.currentUser.getId());
@@ -427,9 +424,11 @@ public class ConfrenceRoomGui extends JFrame {
         strategy.pay();
 
         booking.setPayment(payment);
-
+        AppData.bookings.add(booking);
+        booking.getRoom().setStatus("BOOKED");
+        log("[Booking] Created "+booking.getBookingId()+" for room "+room.getRoomNumber()+ " | "+hours+"h | total=$"+booking.getTotal()+" deposit=$"+booking.getDeposit());
         boolean depositApplied = booking.depositBack();
-
+        
         log("[Payment] Processed " + payment.getClass().getSimpleName()
                 + " | Deposit applied: " + depositApplied);
     }
