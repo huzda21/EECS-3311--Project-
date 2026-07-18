@@ -81,7 +81,7 @@ public abstract class User {
 		counter++;
 		String bookId=room.getRoomNumber()+""+counter;
 		Booking newBooking=new Booking(bookId, room, start, end, "PENDING",deposit,rate, start,this);
-		
+		room.setStatus("BOOKED");
 		return newBooking;
 	}
 
