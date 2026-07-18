@@ -8,6 +8,10 @@ public class Partner extends User {
 		this.partnernumber = partnernumber;
 	}
 
+	public Partner(String id, String email, String password, Long employementNumber) {
+	    this(id, email, password, false, employementNumber);
+	}
+	
 	@Override
 	public double getHourlyRate() {
 		// TODO Auto-generated method stub

@@ -1,6 +1,6 @@
 package main;
 
-public class Room implements SensorObserver{
+public class Room implements SensorObserver {
 	private String roomNumber;
 	private String building;
 	private int capacity;
@@ -19,6 +19,9 @@ public class Room implements SensorObserver{
 
 	}
 	
+	public Room(String roomNumber, String building, int capacity) {
+	    this(roomNumber, building, capacity, "AVAILABLE");
+	}
 	
 
 	public String getBuilding() {
@@ -68,24 +71,11 @@ public class Room implements SensorObserver{
 	public boolean isClosed() {
 		return status.equals("CLOSED");
 	}
-	//Incorporated with sensor [REQ5]
+
+
 	@Override
-	//If there are no active bookings currently, you can safely check into the room
-    public void update(Badge badge) {
-        Booking current = checkBooking();
-        if (current != null) {
-            current.checkIn(badge);
-        }
-    }
-	
-	//checking which booking matches the room that got scanned
-    private Booking checkBooking() {
-        for (Booking b : AppData.bookings) {
-            if (b.getRoom() == this && b.getStatus().equals("CONFIRMED") && b.getCheckInTime() == null) {
-                return b;
-            }
-        }
-        return null;
-    }
+	public void update(Badge badge) {
+	    System.out.println("Room " + roomNumber + " notified by sensor.");
+	}
 
 }

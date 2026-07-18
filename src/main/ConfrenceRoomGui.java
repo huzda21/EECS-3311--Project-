@@ -264,31 +264,101 @@ public class ConfrenceRoomGui extends JFrame {
         }
     }
 
-    // Factory Method in action: user picks a payment type, factory builds the right Payment
+    // Strategy pattern
     private void promptPayment(Booking booking) {
-        String[] options = {"Credit/Debit Card", "Institutional Billing"};
-        int choice = JOptionPane.showOptionDialog(this, "Pay $" + booking.getTotal() + " for booking "
-                        + booking.getBookingId() + " using:", "Payment (Req10)",
-                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
 
-        PaymentFactory factory;
+        String[] options = {"Credit/Debit Card", "Institutional Billing"};
+
+        int choice = JOptionPane.showOptionDialog(
+                this,
+                "Pay $" + booking.getTotal() + " for booking " + booking.getBookingId(),
+                "Payment",
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                options,
+                options[0]);
+
+        PaymentStrategy strategy;
+        Payment payment;
+
         if (choice == 0) {
-            String card = JOptionPane.showInputDialog(this, "Card number:", "4111111111111111");
-            factory = new CreditDebitPaymentFactory(card == null ? "0000" : card, 123, "12/29");
+
+            String card = JOptionPane.showInputDialog(this, "Enter card number:");
+            
+            if (card == null) return;
+            
+            card = card.replaceAll("\\s+", "");
+
+            if (!card.matches("\\d{13,19}")) {
+                JOptionPane.showMessageDialog(this,
+                        "Card number must be between 13 and 19 digits.");
+                return;
+            }
+
+            String expiry = JOptionPane.showInputDialog(this, "Enter expiry date (MM/YY):");
+            if (expiry == null) return;
+
+            if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+                JOptionPane.showMessageDialog(this,
+                        "Expiry must be in MM/YY format.");
+                return;
+            }
+
+            String[] parts = expiry.split("/");
+            int month = Integer.parseInt(parts[0]);
+            int year = 2000 + Integer.parseInt(parts[1]);
+
+            java.time.YearMonth expiryDate = java.time.YearMonth.of(year, month);
+            java.time.YearMonth today = java.time.YearMonth.now();
+
+            if (expiryDate.isBefore(today)) {
+                JOptionPane.showMessageDialog(this,
+                        "This card has expired.");
+                return;
+            }
+
+            String cvc = JOptionPane.showInputDialog(this, "Enter CVC:");
+            if (cvc == null) return;
+
+            if (!cvc.matches("\\d{3,4}")) {
+                JOptionPane.showMessageDialog(this,
+                        "CVC must be 3 or 4 digits.");
+                return;
+            }
+
+            payment = new CreditDebit(
+                    booking.getTotal(),
+                    card,
+                    Integer.parseInt(cvc),
+                    expiry);            
+
         } else if (choice == 1) {
-            String emp = JOptionPane.showInputDialog(this, "Employee number:", "EMP-1001");
-            factory = new InstitutionalBillingPaymentFactory(emp == null ? "EMP-0000" : emp);
+
+            String emp = JOptionPane.showInputDialog(this,
+                    "Employee number:", "EMP-1001");
+
+            payment = new InstitutionalBilling(
+                    booking.getTotal(),
+                    emp == null ? "EMP-0000" : emp);
+
         } else {
-            log("[Payment] Payment skipped for booking " + booking.getBookingId());
+            log("[Payment] Payment skipped.");
             return;
         }
 
-        Payment payment = factory.processPayment(booking.getTotal());
+        strategy = payment;
+
+        strategy.pay();
+
         booking.setPayment(payment);
+
         boolean depositApplied = booking.depositBack();
-        log("[Payment] Processed " + payment.getClass().getSimpleName() + " for booking "
-                + booking.getBookingId() + " | deposit applied: " + depositApplied);
+
+        log("[Payment] Processed " + payment.getClass().getSimpleName()
+                + " | Deposit applied: " + depositApplied);
     }
+    
 
     // ---------------------------------------------------------------
     // ADMIN TAB: add/enable/disable/close rooms (Req6), generate admins (Req2)

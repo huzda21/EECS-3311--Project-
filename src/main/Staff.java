@@ -7,6 +7,10 @@ public class Staff extends User{
 		super(id, email, password, isVerified);
 		this.staffNumber = staffNumber;
 	}
+	
+	public Staff(String id, String email, String password, Long employementNumber) {
+	    this(id, email, password, false, employementNumber);
+	}
 
 	@Override
 	public double getHourlyRate() {

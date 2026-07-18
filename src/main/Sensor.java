@@ -26,12 +26,8 @@ public class Sensor{
         room.getRoomNumber();
     }
 	
-	public void addObserver(Room room) {
-		// TODO Auto-generated method stub
-		observers.add(room);
-		
-	}
-
-
+    public void addObserver(SensorObserver observer) {
+        observers.add(observer);
+    }
 	
 }

@@ -19,7 +19,7 @@ public class InstitutionalBilling extends Payment{
 	}
 
 	@Override
-	public void reufnd() {
+	public void refund() {
 		// TODO Auto-generated method stub
 		System.out.println("Employee"+empNumber+"has been refunded "+amount);
 

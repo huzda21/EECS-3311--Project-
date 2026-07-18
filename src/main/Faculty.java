@@ -7,6 +7,10 @@ public class Faculty extends User{
 	    super(id, email, password, isVerified);
 	    this.employementNumber = employementNumber;
 	}
+	
+	public Faculty(String id, String email, String password, Long employementNumber) {
+	    this(id, email, password, false, employementNumber);
+	}
 
 	@Override
 	public double getHourlyRate() {

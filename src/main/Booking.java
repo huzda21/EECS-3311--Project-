@@ -29,17 +29,28 @@ public class Booking {
 		this.status="CONFIRMED";
 	}
 	
-	public void editBooking(LocalDateTime start,LocalDateTime end) {
-		this.startTime=start;
-		this.endTime=end;
-	}
 	
-	public void cancelBooking() {
-		this.status="CANCELLED";
+	public boolean editBooking(LocalDateTime start, LocalDateTime end) {
+	    if(LocalDateTime.now().isBefore(startTime)) {
+	        this.startTime = start;
+	        this.endTime = end;
+	        return true;
+	    }
+	    return false;
+	}	
+
+	
+	public boolean cancelBooking() {
+	    if(LocalDateTime.now().isBefore(startTime)) {
+	        status = "CANCELLED";
+	        return true;
+	    }
+	    return false;
 	}
 	
 	public void extendBooking(LocalDateTime end) {
-		if(this.room.isAvailable()) {
+		if(LocalDateTime.now().isBefore(endTime) && room.isAvailable()) {
+			
 			this.endTime=end;
 		}
 	}
@@ -54,15 +65,23 @@ public class Booking {
 		return total;
 	}
 	
-	public boolean depositBack(){
-        if(checkInTime!=null) {
-            System.out.println("[Booking " +bookingId+ "] Deposit applied to final cost.");
-            return true;
-        }
-        System.out.println("[Booking " +bookingId+ "] Deposit forfeited (no check-in).");
-        return false;
-    }
 
+
+	public boolean depositBack() {
+
+	    // User checked in within 30 minutes of the booking start
+	    if (checkInTime != null &&
+	        !checkInTime.isAfter(startTime.plusMinutes(30))) {
+
+	        total -= deposit;
+	        return true;
+	    }
+
+	    // Deposit is forfeited
+	    return false;
+	}
+	
+	
 	public Room getRoom() {
 		return room;
 	}

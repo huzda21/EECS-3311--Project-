@@ -20,7 +20,7 @@ public class CreditDebit extends Payment{
 	}
 
 	@Override
-	public void reufnd() {
+	public void refund() {
 		// TODO Auto-generated method stub
 		System.out.println("Card ending in "+cardNumber.substring(cardNumber.length()-4)+"has been refunded "+amount);
 

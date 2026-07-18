@@ -2,7 +2,8 @@ package main;
 
 import java.time.LocalDateTime;
 
-public abstract class Payment {
+public abstract class Payment implements PaymentStrategy {
+
 	private String paymentId;
 	protected double amount;
 	private LocalDateTime timePaid;
@@ -39,9 +40,11 @@ public abstract class Payment {
 	}
 
 
-
+	@Override
 	public abstract void pay();
-	public abstract void reufnd();
+
+	@Override
+	public abstract void refund();
 	
 	
 }
