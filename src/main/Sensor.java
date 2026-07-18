@@ -1,8 +1,13 @@
 package main;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class Sensor{
     private String sensorId;
     private Room room;
+	private List<SensorObserver> observers = new ArrayList<>();
+
 
     public Sensor(String sensorId, Room room) {
         this.sensorId = sensorId;
