@@ -48,12 +48,13 @@ public class Room implements SensorObserver {
 	}
 
 	public boolean isAvailable() {
-		// TODO Auto-generated method stub
 		return status.equals("AVAILABLE");
 	}
 
+	public void setStatus(String status) {
+		this.status=status;
+	}
 	public void close() {
-		// TODO Auto-generated method stub
 		this.status="CLOSED";
 		
 	}
