@@ -1,4 +1,3 @@
-//Incorporate observer pattern here
 package main;
 
 public class Sensor{
@@ -21,6 +20,13 @@ public class Sensor{
     public void sendData() {
         room.getRoomNumber();
     }
+	
+	public void addObserver(Room room) {
+		// TODO Auto-generated method stub
+		observers.add(room);
+		
+	}
+
 
 	
 }
