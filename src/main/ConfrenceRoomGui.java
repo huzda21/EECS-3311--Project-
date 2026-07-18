@@ -238,9 +238,9 @@ public class ConfrenceRoomGui extends JFrame {
                 log("[Booking] Created " + booking.getBookingId() + " for room " + room.getRoomNumber()
                         + " | total=$" + booking.getTotal() + " deposit=$" + booking.getDeposit());
 
-                // Observer in action: a badge scan at check-in notifies subscribers
+                // Observer: a badge scan at check in notifies room of scan
                 Sensor sensor = new Sensor("SEN-" + room.getRoomNumber(), room);
-                sensor.addObserver(new CheckInManager());
+                sensor.addObserver(room);
                 Badge badge = new Badge("BADGE-" + AppData.currentUser.getId());
                 sensor.scanBadge(badge);
                 booking.checkIn(badge);
