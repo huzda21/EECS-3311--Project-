@@ -28,4 +28,3 @@ public abstract class BookingDecorator extends Booking {
         return decoratedBooking.getDescription();
     }
 }
-}
