@@ -4,7 +4,6 @@ public abstract class BookingDecorator extends Booking {
     protected Booking decoratedBooking;
 
     public BookingDecorator(Booking booking) {
-        // Pass the inner booking's real data straight to the super constructor
         super(
             booking.getBookingId(), 
             booking.getRoom(), 
@@ -14,7 +13,7 @@ public abstract class BookingDecorator extends Booking {
             booking.getDeposit(), 
             booking.getTotal(), 
             booking.getCheckInTime(), 
-            booking.getPayment() != null ? null : null // Add matching bookedBy parameter if available
+            booking.getBookedBy()
         );
         this.decoratedBooking = booking;
     }
@@ -28,4 +27,5 @@ public abstract class BookingDecorator extends Booking {
     public String getDescription() {
         return decoratedBooking.getDescription();
     }
+}
 }
