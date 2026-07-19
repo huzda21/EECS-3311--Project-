@@ -199,10 +199,6 @@ public class Booking {
 	    return bookedBy;
 	}
 
-	public double cost() {
-		return this.total;
-	}
-
 	public String getDescription() {
 		return "Standard Room Booking (" + (room != null ? room.getRoomNumber() : "N/A") + ")";
 	}
