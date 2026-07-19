@@ -1,26 +1,19 @@
 package main;
 
-public class CateringDecorator extends BookingDecorator {
-    
-    public CateringDecorator(Booking booking) {
+public class StudentBookingDecorator extends BookingDecorator {
+    public StudentBookingDecorator(Booking booking) {
         super(booking);
     }
 
-    /**
-     * Intercepts the original cost flow and polymorphically 
-     * adds a dynamic premium fee of $50.00 for the catering service.
-     */
     @Override
     public double cost() {
-        return super.cost() + 50.00;
+        long minutes = java.time.Duration.between(getStartTime(), getEndTime()).toMinutes();
+        double hours = minutes / 60.0;
+        return hours * 20.0; // $20/hr for students
     }
 
-    /**
-     * Intercepts the original description track to append 
-     * the catering metadata to the invoice summary.
-     */
     @Override
     public String getDescription() {
-        return super.getDescription() + " + Premium Catering Add-on";
+        return super.getDescription() + " [Student Rate: $20/hr]";
     }
 }
