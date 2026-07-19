@@ -295,8 +295,24 @@ public class ConfrenceRoomGui extends JFrame {
             	    return;
             	}
            
-                Booking booking=AppData.currentUser.booking(room, start, end);
-                
+                 // 1. Create the base booking entity
+Booking booking = AppData.currentUser.booking(room, start, end);
+
+// 2. Wrap it dynamically using your Decorator pattern to calculate Req3 rates
+String role = AppData.currentUser.getRoleName(); 
+
+if (role.equalsIgnoreCase("Student")) {
+    booking = new StudentBookingDecorator(booking);
+} else if (role.equalsIgnoreCase("Faculty")) {
+    booking = new FacultyBookingDecorator(booking);
+} else if (role.equalsIgnoreCase("Staff")) {
+    booking = new StaffBookingDecorator(booking);
+} else if (role.equalsIgnoreCase("Partner")) {
+    booking = new PartnerBookingDecorator(booking);
+}
+
+// 3. Pass the newly decorated object cleanly into the payment stream
+promptPayment(booking);                
                 
                 /*Sensor sensor = new Sensor("sens-" + room.getRoomNumber(), room);
                 sensor.addObserver(room);
