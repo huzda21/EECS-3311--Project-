@@ -45,7 +45,7 @@ public class Booking {
 	public boolean cancelBooking() {
 	    if(LocalDateTime.now().isBefore(startTime)) {
 	        status ="CANCELLED";
-	        room.setStatus("AVAILABLE");
+	        room.enable();
 	        return true;
 	    }
 	    return false;

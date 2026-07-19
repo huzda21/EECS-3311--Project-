@@ -5,7 +5,7 @@ public class Room implements SensorObserver {
 	private String building;
 	private int capacity;
 	private String status;
-
+	private RoomState state;
 
 	
 	
@@ -17,6 +17,17 @@ public class Room implements SensorObserver {
 		this.capacity = capacity;
 		this.status = status;
 
+		switch (status) {
+			case "DISABLED":
+				this.state = new DisabledState();
+				break;
+			case "CLOSED":
+				this.state = new ClosedState();
+				break;
+			default:
+				this.state = new AvailableState();
+				break;
+		}
 	}
 	
 	public Room(String roomNumber, String building, int capacity) {
@@ -37,40 +48,42 @@ public class Room implements SensorObserver {
 
 
 	public String getStatus() {
-		return status;
+		return state.getStatus();
 	}
 
 
 
 	public String getRoomNumber() {
-		// TODO Auto-generated method stub
+		
 		return roomNumber;
 	}
 
 	public boolean isAvailable() {
-		return status.equals("AVAILABLE");
+	return state.getStatus().equals("AVAILABLE");
 	}
 
 	public void setStatus(String status) {
 		this.status=status;
 	}
+
+	public void setState(RoomState state) {
+		this.state = state;
+		this.status = state.getStatus();
+	}
 	public void close() {
-		this.status="CLOSED";
-		
+    	state.close(this);
 	}
 
 	public void enable() {
-		// TODO Auto-generated method stub
-		this.status="AVAILABLE";
-		
+    	state.enable(this);
 	}
-	
+
 	public void disable() {
-		this.status="DISABLED";
+		state.disable(this);
 	}
 	
 	public boolean isClosed() {
-		return status.equals("CLOSED");
+		return state.getStatus().equals("CLOSED");
 	}
 
 
