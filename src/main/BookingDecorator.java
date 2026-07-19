@@ -4,14 +4,24 @@ public abstract class BookingDecorator extends Booking {
     protected Booking decoratedBooking;
 
     public BookingDecorator(Booking booking) {
-        // Pass dummy values to super() to satisfy the legacy constructor signature safely
-        super(booking.getBookingId(), booking.getRoomNumber(), 0); 
+        // Pass the inner booking's real data straight to the super constructor
+        super(
+            booking.getBookingId(), 
+            booking.getRoom(), 
+            booking.getStartTime(), 
+            booking.getEndTime(), 
+            booking.getStatus(), 
+            booking.getDeposit(), 
+            booking.getTotal(), 
+            booking.getCheckInTime(), 
+            booking.getPayment() != null ? null : null // Add matching bookedBy parameter if available
+        );
         this.decoratedBooking = booking;
     }
 
     @Override
-    public double calculateTotalCost() {
-        return decoratedBooking.calculateTotalCost();
+    public double cost() {
+        return decoratedBooking.cost();
     }
 
     @Override
