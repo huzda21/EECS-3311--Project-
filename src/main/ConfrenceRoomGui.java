@@ -217,25 +217,106 @@ public class ConfrenceRoomGui extends JFrame {
             }
 
             Object[] durationOptions = {"0.5", "1", "2", "3", "4", "6", "8"};
-            Object selected= JOptionPane.showInputDialog(this,"How many hours would you like to book " + room.getRoomNumber() + " for (starting now)?","Booking Duration",JOptionPane.QUESTION_MESSAGE, null,durationOptions,"1");
+            Object selected= JOptionPane.showInputDialog(this,"How many hours would you like to book " + room.getRoomNumber() + " for?","Booking Duration",JOptionPane.QUESTION_MESSAGE, null,durationOptions,"1");
             if(selected==null) return; 
             double hours=Double.parseDouble((String) selected);
+         
+            String date;
 
+            while (true) {
+                date = JOptionPane.showInputDialog(
+                        this,
+                        "Enter booking date (YYYY-MM-DD):");
+
+                if (date == null) return; // user pressed Cancel
+
+                date = date.trim();
+
+                if (date.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                            "Date cannot be empty.");
+                    continue;
+                }
+
+                try {
+                    java.time.LocalDate.parse(date);
+                    break; // valid date
+                } catch (java.time.format.DateTimeParseException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please enter a valid date in YYYY-MM-DD format.");
+                }
+            }
+            
+     
+            String time;
+
+            while (true) {
+                time = JOptionPane.showInputDialog(
+                        this,
+                        "Enter start time (HH:MM, 24 hour):");
+
+                if (time == null) return;
+
+                time = time.trim();
+
+                if (time.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,
+                            "Time cannot be empty.");
+                    continue;
+                }
+
+                try {
+                    java.time.LocalTime.parse(time);
+                    break; // valid time
+                } catch (java.time.format.DateTimeParseException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Please enter a valid time in HH:MM format.");
+                }
+            }
+
+          
             try {
-                LocalDateTime start=LocalDateTime.now();
-                LocalDateTime end=start.plusMinutes(Math.round(hours*60));
+            	LocalDateTime start =
+            	        LocalDateTime.parse(date + "T" + time);
+            	
+            	if(start.isBefore(LocalDateTime.now())) {
+            	    JOptionPane.showMessageDialog(
+            	        this,
+            	        "Booking must start in the future.");
+            	    return;
+            	}
 
+            	LocalDateTime end =
+            	        start.plusMinutes(Math.round(hours * 60));
+            	
+            	if (!Booking.roomAvailable(room, start, end)) {
+            	    JOptionPane.showMessageDialog(this,
+            	            "That room is already booked during that time.");
+            	    return;
+            	}
+           
                 Booking booking=AppData.currentUser.booking(room, start, end);
-                Sensor sensor = new Sensor("sens-" + room.getRoomNumber(), room);
+                
+                
+                /*Sensor sensor = new Sensor("sens-" + room.getRoomNumber(), room);
                 sensor.addObserver(room);
                 Badge badge = new Badge("bad-" + AppData.currentUser.getId());
                 sensor.scanBadge(badge);
                 booking.checkIn(badge);
                 sensor.findOccupancy();
-                sensor.sendData();
+                sensor.sendData(); */
+
                 promptPayment(booking);
-            } catch (IllegalStateException ex) {
-                JOptionPane.showMessageDialog(this,ex.getMessage());
+
+            
+            } 
+            catch (java.time.format.DateTimeParseException ex) 
+            {
+            	JOptionPane.showMessageDialog(this, "Please enter the date as YYYY-MM-DD and the time as HH:MM.");
+            } 
+            catch (IllegalStateException ex) 
+            {
+            	JOptionPane.showMessageDialog(this, ex.getMessage());
             }
             refreshRoomTable();
             refreshMyBookingsTable();
@@ -258,11 +339,14 @@ public class ConfrenceRoomGui extends JFrame {
         JButton extendBtn=new JButton("Extend Selected Booking");
         JButton cancelBtn=new JButton("Cancel Selected Booking");
         JButton refreshBtn=new JButton("Refresh");
+        JButton checkInBtn = new JButton("Check In");
 
         JPanel bottom= new JPanel();
+        bottom.add(checkInBtn);
         bottom.add(extendBtn);
         bottom.add(cancelBtn);
         bottom.add(refreshBtn);
+        
 
         panel.add(new JScrollPane(myBookingsTable),BorderLayout.CENTER);
         panel.add(bottom,BorderLayout.SOUTH);
@@ -277,6 +361,9 @@ public class ConfrenceRoomGui extends JFrame {
             Object selected = JOptionPane.showInputDialog(this,"Extend booking " + booking.getBookingId() + " by how many hours?","Extend Booking",JOptionPane.QUESTION_MESSAGE,null,durationOptions,"1");
             if (selected==null) return;
             double hours=Double.parseDouble((String) selected);
+            
+            
+            
             LocalDateTime newEnd=booking.getEndTime().plusMinutes(Math.round(hours * 60));
             boolean success=booking.extendBooking(newEnd);
             if(success) {
@@ -300,6 +387,38 @@ public class ConfrenceRoomGui extends JFrame {
             refreshMyBookingsTable();
         });
 
+        
+        checkInBtn.addActionListener(e -> {
+
+            Booking booking = selectedMyBooking();
+
+            if (booking == null)
+                return;
+
+            Badge badge = new Badge("bad-" + AppData.currentUser.getId());
+            Sensor sensor = new Sensor(
+                    "sens-" + booking.getRoom().getRoomNumber(),
+                    booking.getRoom());
+
+            sensor.addObserver(booking.getRoom());
+            sensor.scanBadge(badge);
+
+            if (booking.checkIn(badge)) {
+                sensor.findOccupancy();
+                sensor.sendData();
+                
+                booking.depositBack();                
+                JOptionPane.showMessageDialog(this,
+                        "Checked in successfully!");
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        "Cannot check in at this time.");
+            }
+
+            refreshMyBookingsTable();
+
+        });
+        
         return panel;
     }
 
@@ -310,14 +429,17 @@ public class ConfrenceRoomGui extends JFrame {
                     b.getBookingId(), b.getRoom().getRoomNumber(),
                     b.getStartTime(), b.getEndTime(), b.getStatus(), b.getTotal()
             });
+            
         }
     }
 
     private List<Booking> myBookingsForCurrentUser() {
         List<Booking> mine = new ArrayList<>();
         if (AppData.currentUser == null) return mine;
+
         for (Booking b : AppData.bookings) {
-            if (b.getBookedBy() == AppData.currentUser) {
+            if (b.getBookedBy() == AppData.currentUser
+                    && !b.getStatus().equals("CANCELLED")) {
                 mine.add(b);
             }
         }
@@ -343,7 +465,7 @@ public class ConfrenceRoomGui extends JFrame {
 
         int choice = JOptionPane.showOptionDialog(
                 this,
-                "Pay $" + booking.getTotal() + " for booking " + booking.getBookingId(),
+                "Pay deposit of $" + booking.getDeposit() + " for booking " + booking.getBookingId(),
                 "Payment",
                 JOptionPane.DEFAULT_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
@@ -356,54 +478,64 @@ public class ConfrenceRoomGui extends JFrame {
 
         if (choice == 0) {
 
-            String card = JOptionPane.showInputDialog(this, "Enter card number:");
-            
-            if (card == null) return;
-            
-            card = card.replaceAll("\\s+", "");
+        	String card;
 
-            if (!card.matches("\\d{13,19}")) {
-                JOptionPane.showMessageDialog(this,
-                        "Card number must be between 13 and 19 digits.");
-                return;
-            }
+        	while (true) {
+        	    card = JOptionPane.showInputDialog(this, "Enter card number:");
 
-            String expiry = JOptionPane.showInputDialog(this, "Enter expiry date (MM/YY):");
-            if (expiry == null) return;
+        	    if (card == null) return;
 
-            if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
-                JOptionPane.showMessageDialog(this,
-                        "Expiry must be in MM/YY format.");
-                return;
-            }
+        	    card = card.replaceAll("\\s+", "");
+        	    if (card.matches("\\d{13,19}")) {
+        	        break;
+        	    }
+        	    JOptionPane.showMessageDialog(this,
+        	            "Card number must be between 13 and 19 digits.");
+        	}
 
-            String[] parts = expiry.split("/");
-            int month = Integer.parseInt(parts[0]);
-            int year = 2000 + Integer.parseInt(parts[1]);
+        	String expiry;
 
-            java.time.YearMonth expiryDate = java.time.YearMonth.of(year, month);
-            java.time.YearMonth today = java.time.YearMonth.now();
+        	while (true) {
+        	    expiry = JOptionPane.showInputDialog(this,
+        	            "Enter expiry date (MM/YY):");
 
-            if (expiryDate.isBefore(today)) {
-                JOptionPane.showMessageDialog(this,
-                        "This card has expired.");
-                return;
-            }
+        	    if (expiry == null) return;
+        	    if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
+        	        JOptionPane.showMessageDialog(this,
+        	                "Expiry must be in MM/YY format.");
+        	        continue;
+        	    }
+        	    String[] parts = expiry.split("/");
+        	    int month = Integer.parseInt(parts[0]);
+        	    int year = 2000 + Integer.parseInt(parts[1]);
 
-            String cvc = JOptionPane.showInputDialog(this, "Enter CVC:");
-            if (cvc == null) return;
+        	    java.time.YearMonth expiryDate =
+        	            java.time.YearMonth.of(year, month);
 
-            if (!cvc.matches("\\d{3,4}")) {
+        	    if (expiryDate.isBefore(java.time.YearMonth.now())) {
+        	        JOptionPane.showMessageDialog(this,
+        	                "This card has expired.");
+        	        continue;
+        	    }
+        	    break;
+        	}
+
+            String cvc;
+
+            while (true) {
+                cvc = JOptionPane.showInputDialog(this, "Enter CVC:");
+                if (cvc == null) return;
+                if (cvc.matches("\\d{3,4}")) {
+                    break;
+                }
                 JOptionPane.showMessageDialog(this,
                         "CVC must be 3 or 4 digits.");
-                return;
             }
-
             payment = new CreditDebit(
-                    booking.getTotal(),
+                    booking.getDeposit(),
                     card,
                     Integer.parseInt(cvc),
-                    expiry);            
+                    expiry);
 
         } else if (choice == 1) {
 
@@ -411,7 +543,7 @@ public class ConfrenceRoomGui extends JFrame {
                     "Employee number:", "EMP-1001");
 
             payment = new InstitutionalBilling(
-                    booking.getTotal(),
+                    booking.getDeposit(),
                     emp == null ? "EMP-0000" : emp);
 
         } else {
@@ -425,12 +557,17 @@ public class ConfrenceRoomGui extends JFrame {
 
         booking.setPayment(payment);
         AppData.bookings.add(booking);
-        booking.getRoom().setStatus("BOOKED");
-        log("[Booking] Created "+booking.getBookingId()+" for room "+room.getRoomNumber()+ " | "+hours+"h | total=$"+booking.getTotal()+" deposit=$"+booking.getDeposit());
-        boolean depositApplied = booking.depositBack();
-        
-        log("[Payment] Processed " + payment.getClass().getSimpleName()
-                + " | Deposit applied: " + depositApplied);
+        log("[Booking] Created "
+                + booking.getBookingId()
+                + " for room "
+                + booking.getRoom().getRoomNumber()
+                + " | total=$"
+                + booking.getTotal()
+                + " | deposit=$"
+                + booking.getDeposit());
+      
+        log("[Payment] Processed "
+                + payment.getClass().getSimpleName());    
     }
     
 

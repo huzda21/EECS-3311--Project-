@@ -7,6 +7,7 @@ public abstract class User {
 	private String password;
 	protected boolean isVerified;
 	private static int counter=0;
+	
 	public User(String id, String email, String password, boolean isVerified) {
 		super();
 		this.id = id;
@@ -71,8 +72,9 @@ public abstract class User {
 
 		}
 		
-		if(!Booking.roomExtension(room,start,end,null)) {
-			throw new IllegalStateException("This room is already booked for part of that time range");
+		if (!Booking.roomAvailable(room, start, end)) {
+		    throw new IllegalStateException(
+		            "This room is already booked for part of that time range");
 		}
 		double bookingDuration=  Duration.between(start, end).toMinutes()/60.0;
 		double rate=getHourlyRate()*bookingDuration;
@@ -80,7 +82,7 @@ public abstract class User {
 		
 		counter++;
 		String bookId=room.getRoomNumber()+""+counter;
-		Booking newBooking=new Booking(bookId, room, start, end, "PENDING",deposit,rate, start,this);
+		Booking newBooking=new Booking(bookId, room, start, end, "BOOKED",deposit,rate, null ,this);
 		return newBooking;
 
 	}
