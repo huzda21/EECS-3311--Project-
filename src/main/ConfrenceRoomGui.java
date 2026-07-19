@@ -139,7 +139,7 @@ public class ConfrenceRoomGui extends JFrame {
                 AppData.users.add(u);
                 log("[Account] Registered"+u.getRoleName()+" account: " + email);
                 JOptionPane.showMessageDialog(this, "Registered successfully. You can now log in.");
-            } catch (NumberFormatException ex) {
+            } catch (NumberFormatException fail) {
                 JOptionPane.showMessageDialog(this, "Please enter a valid number for the ID field.");
             }
         });
@@ -216,123 +216,81 @@ public class ConfrenceRoomGui extends JFrame {
                 return;
             }
 
-            Object[] durationOptions = {"0.5", "1", "2", "3", "4", "6", "8"};
+            Object[] durationOptions={"0.5", "1", "2", "3", "4", "6", "8"};
             Object selected= JOptionPane.showInputDialog(this,"How many hours would you like to book " + room.getRoomNumber() + " for?","Booking Duration",JOptionPane.QUESTION_MESSAGE, null,durationOptions,"1");
             if(selected==null) return; 
             double hours=Double.parseDouble((String) selected);
          
             String date;
 
-            while (true) {
-                date = JOptionPane.showInputDialog(
-                        this,
-                        "Enter booking date (YYYY-MM-DD):");
-
-                if (date == null) return; // user pressed Cancel
-
+            while(true) {
+                date=JOptionPane.showInputDialog(this,"Enter booking date (YYYY-MM-DD):");
+                if(date==null) return; 
                 date = date.trim();
-
-                if (date.isEmpty()) {
-                    JOptionPane.showMessageDialog(this,
-                            "Date cannot be empty.");
-                    continue;
+                if(date.isEmpty()) {
+                    JOptionPane.showMessageDialog(this,"Date cannot be empty.");continue;
                 }
 
                 try {
                     java.time.LocalDate.parse(date);
-                    break; // valid date
-                } catch (java.time.format.DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(this,
-                            "Please enter a valid date in YYYY-MM-DD format.");
+                    break;
+                }catch (java.time.format.DateTimeParseException fail) {
+                    JOptionPane.showMessageDialog(this,"Please enter a valid date in YYYY-MM-DD format.");
                 }
             }
-            
-     
             String time;
-
-            while (true) {
-                time = JOptionPane.showInputDialog(
-                        this,
-                        "Enter start time (HH:MM, 24 hour):");
-
-                if (time == null) return;
-
-                time = time.trim();
-
+            while(true) {
+                time=JOptionPane.showInputDialog(this,"Enter start time (HH:MM, 24 hour):");
+                if (time==null) return;
+                time=time.trim();
                 if (time.isEmpty()) {
-                    JOptionPane.showMessageDialog(this,
-                            "Time cannot be empty.");
+                    JOptionPane.showMessageDialog(this,"Time cannot be empty.");
                     continue;
                 }
 
                 try {
                     java.time.LocalTime.parse(time);
-                    break; // valid time
-                } catch (java.time.format.DateTimeParseException ex) {
-                    JOptionPane.showMessageDialog(this,
-                            "Please enter a valid time in HH:MM format.");
+                    break; 
+                } catch (java.time.format.DateTimeParseException fail) {
+                    JOptionPane.showMessageDialog(this,"Please enter a valid time in HH:MM format.");
                 }
             }
 
           
             try {
-            	LocalDateTime start =
-            	        LocalDateTime.parse(date + "T" + time);
-            	
+            	LocalDateTime start=LocalDateTime.parse(date+"T"+ time);            	
             	if(start.isBefore(LocalDateTime.now())) {
-            	    JOptionPane.showMessageDialog(
-            	        this,
-            	        "Booking must start in the future.");
+            	    JOptionPane.showMessageDialog(this,"Booking must start in the future.");
             	    return;
             	}
 
-            	LocalDateTime end =
-            	        start.plusMinutes(Math.round(hours * 60));
-            	
-            	if (!Booking.roomAvailable(room, start, end)) {
-            	    JOptionPane.showMessageDialog(this,
-            	            "That room is already booked during that time.");
+            	LocalDateTime end =start.plusMinutes(Math.round(hours*60));
+            	if (!Booking.roomAvailable(room,start,end)) {
+            	    JOptionPane.showMessageDialog(this, "That room is already booked during that time.");
             	    return;
             	}
            
-                 // 1. Create the base booking entity
-Booking booking = AppData.currentUser.booking(room, start, end);
-
-// 2. Wrap it dynamically using your Decorator pattern to calculate Req3 rates
-String role = AppData.currentUser.getRoleName(); 
-
-if (role.equalsIgnoreCase("Student")) {
-    booking = new StudentBookingDecorator(booking);
-} else if (role.equalsIgnoreCase("Faculty")) {
-    booking = new FacultyBookingDecorator(booking);
-} else if (role.equalsIgnoreCase("Staff")) {
-    booking = new StaffBookingDecorator(booking);
-} else if (role.equalsIgnoreCase("Partner")) {
-    booking = new PartnerBookingDecorator(booking);
-}
-
-// 3. Pass the newly decorated object cleanly into the payment stream
-promptPayment(booking);                
-                
-                /*Sensor sensor = new Sensor("sens-" + room.getRoomNumber(), room);
-                sensor.addObserver(room);
-                Badge badge = new Badge("bad-" + AppData.currentUser.getId());
-                sensor.scanBadge(badge);
-                booking.checkIn(badge);
-                sensor.findOccupancy();
-                sensor.sendData(); */
-
-                promptPayment(booking);
-
-            
-            } 
-            catch (java.time.format.DateTimeParseException ex) 
-            {
+            	Booking booking = AppData.currentUser.booking(room,start,end);
+            	String role = AppData.currentUser.getRoleName(); 
+            	if (role.equalsIgnoreCase("Student")) {
+            		booking = new StudentBookingDecorator(booking);
+            	} 
+            	else if (role.equalsIgnoreCase("Faculty")) {
+            		booking = new FacultyBookingDecorator(booking);
+            	} 
+            	else if (role.equalsIgnoreCase("Staff")) {
+            		booking = new StaffBookingDecorator(booking);
+            	} 
+            	else if (role.equalsIgnoreCase("Partner")) {
+            		booking = new PartnerBookingDecorator(booking);
+            	}
+            	promptPayment(booking);                          
+            	} 
+            catch(java.time.format.DateTimeParseException fail) {
             	JOptionPane.showMessageDialog(this, "Please enter the date as YYYY-MM-DD and the time as HH:MM.");
             } 
-            catch (IllegalStateException ex) 
-            {
-            	JOptionPane.showMessageDialog(this, ex.getMessage());
+            catch(IllegalStateException fail) {
+            	JOptionPane.showMessageDialog(this,fail.getMessage());
             }
             refreshRoomTable();
             refreshMyBookingsTable();
@@ -341,45 +299,36 @@ promptPayment(booking);
     }
     private void refreshRoomTable() {
         roomTableModel.setRowCount(0);
-        for (Room r : AppData.rooms) {
-            roomTableModel.addRow(new Object[]{r.getRoomNumber(), r.getBuilding(), r.getCapacity(), r.getStatus()});
+        for (Room r:AppData.rooms) {
+            roomTableModel.addRow(new Object[]{r.getRoomNumber(),r.getBuilding(),r.getCapacity(),r.getStatus()});
         }
     }
-    private JPanel buildMyBookingsPanel() {
+    private JPanel buildMyBookingsPanel(){
         JPanel panel=new JPanel(new BorderLayout(5,5));
-        myBookingsModel = new DefaultTableModel(
+        myBookingsModel=new DefaultTableModel(
                 new Object[]{"Booking ID","Room","Start","End","Status","Total"}, 0);
         myBookingsTable = new JTable(myBookingsModel);
         refreshMyBookingsTable();
-
         JButton extendBtn=new JButton("Extend Selected Booking");
         JButton cancelBtn=new JButton("Cancel Selected Booking");
         JButton refreshBtn=new JButton("Refresh");
-        JButton checkInBtn = new JButton("Check In");
+        JButton checkInBtn=new JButton("Check In");
 
-        JPanel bottom= new JPanel();
+        JPanel bottom=new JPanel();
         bottom.add(checkInBtn);
         bottom.add(extendBtn);
         bottom.add(cancelBtn);
         bottom.add(refreshBtn);
-        
-
         panel.add(new JScrollPane(myBookingsTable),BorderLayout.CENTER);
         panel.add(bottom,BorderLayout.SOUTH);
-
         refreshBtn.addActionListener(e->refreshMyBookingsTable());
-
-        extendBtn.addActionListener(e-> {
+        extendBtn.addActionListener(e->{
             Booking booking=selectedMyBooking();
-            if (booking==null) return;
-
+            if(booking==null) return;
             Object[] durationOptions={"0.5", "1", "2", "3", "4"};
             Object selected = JOptionPane.showInputDialog(this,"Extend booking " + booking.getBookingId() + " by how many hours?","Extend Booking",JOptionPane.QUESTION_MESSAGE,null,durationOptions,"1");
             if (selected==null) return;
             double hours=Double.parseDouble((String) selected);
-            
-            
-            
             LocalDateTime newEnd=booking.getEndTime().plusMinutes(Math.round(hours * 60));
             boolean success=booking.extendBooking(newEnd);
             if(success) {
@@ -404,58 +353,43 @@ promptPayment(booking);
         });
 
         
-        checkInBtn.addActionListener(e -> {
+        checkInBtn.addActionListener(e->{
+            Booking booking=selectedMyBooking();
 
-            Booking booking = selectedMyBooking();
-
-            if (booking == null)
+            if(booking==null)
                 return;
-
-            Badge badge = new Badge("bad-" + AppData.currentUser.getId());
-            Sensor sensor = new Sensor(
-                    "sens-" + booking.getRoom().getRoomNumber(),
-                    booking.getRoom());
-
+            Badge badge=new Badge("bad-"+AppData.currentUser.getId());
+            Sensor sensor=new Sensor("sens-" + booking.getRoom().getRoomNumber(),booking.getRoom());
             sensor.addObserver(booking.getRoom());
             sensor.scanBadge(badge);
-
-            if (booking.checkIn(badge)) {
+            if(booking.checkIn(badge)) {
                 sensor.findOccupancy();
-                sensor.sendData();
-                
+                sensor.sendData();  
                 booking.depositBack();                
-                JOptionPane.showMessageDialog(this,
-                        "Checked in successfully!");
-            } else {
-                JOptionPane.showMessageDialog(this,
-                        "Cannot check in at this time.");
+                JOptionPane.showMessageDialog(this,"Checked in successfully!");
+            } else{
+                JOptionPane.showMessageDialog(this,"Cannot check in at this time.");
             }
-
             refreshMyBookingsTable();
-
-        });
-        
+        });      
         return panel;
     }
-
     private void refreshMyBookingsTable() {
         myBookingsModel.setRowCount(0);
-        for (Booking b : myBookingsForCurrentUser()) {
+        for (Booking b:myBookingsForCurrentUser()) {
             myBookingsModel.addRow(new Object[]{
-                    b.getBookingId(), b.getRoom().getRoomNumber(),
-                    b.getStartTime(), b.getEndTime(), b.getStatus(), b.getTotal()
-            });
-            
+                    b.getBookingId(),b.getRoom().getRoomNumber(),
+                    b.getStartTime(),b.getEndTime(),b.getStatus(),b.getTotal()
+            });            
         }
     }
-
     private List<Booking> myBookingsForCurrentUser() {
-        List<Booking> mine = new ArrayList<>();
-        if (AppData.currentUser == null) return mine;
-
-        for (Booking b : AppData.bookings) {
-            if (b.getBookedBy() == AppData.currentUser
-                    && !b.getStatus().equals("CANCELLED")) {
+        List<Booking>mine=new ArrayList<>();
+        if(AppData.currentUser==null) { 
+        	return mine;
+        }
+        for(Booking b:AppData.bookings) {
+            if (b.getBookedBy()==AppData.currentUser&&!b.getStatus().equals("CANCELLED")) {
                 mine.add(b);
             }
         }
@@ -463,247 +397,185 @@ promptPayment(booking);
     }
 
     private Booking selectedMyBooking() {
-        if (AppData.currentUser == null) {
+        if(AppData.currentUser==null) {
             JOptionPane.showMessageDialog(this, "Please log in first.");
             return null;
         }
-        int row = myBookingsTable.getSelectedRow();
-        if (row == -1) {
+        int row=myBookingsTable.getSelectedRow();
+        if (row==-1) {
             JOptionPane.showMessageDialog(this, "Select a booking first.");
             return null;
         }
         return myBookingsForCurrentUser().get(row);
     }
-
     private void promptPayment(Booking booking) {
-
         String[] options = {"Credit/Debit Card", "Institutional Billing"};
-
-        int choice = JOptionPane.showOptionDialog(
-                this,
-                "Pay deposit of $" + booking.getDeposit() + " for booking " + booking.getBookingId(),
-                "Payment",
-                JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE,
-                null,
-                options,
-                options[0]);
-
+        int choice = JOptionPane.showOptionDialog(this,"Pay deposit of $" + booking.getDeposit() + " for booking " + booking.getBookingId(),"Payment",JOptionPane.DEFAULT_OPTION,JOptionPane.QUESTION_MESSAGE,
+                null,options,options[0]);
         PaymentStrategy strategy;
         Payment payment;
-
-        if (choice == 0) {
-
+        if(choice==0) {
         	String card;
-
-        	while (true) {
-        	    card = JOptionPane.showInputDialog(this, "Enter card number:");
-
-        	    if (card == null) return;
-
-        	    card = card.replaceAll("\\s+", "");
-        	    if (card.matches("\\d{13,19}")) {
+        	while(true){
+        	    card=JOptionPane.showInputDialog(this, "Enter card number:");
+        	    if(card==null){
+        	    	return;
+        	    }
+        	    card=card.replaceAll("\\s+", "");
+        	    if(card.matches("\\d{13,19}")){
         	        break;
         	    }
-        	    JOptionPane.showMessageDialog(this,
-        	            "Card number must be between 13 and 19 digits.");
+        	    JOptionPane.showMessageDialog(this,"Card number must be between 13 and 19 digits.");
         	}
-
         	String expiry;
-
-        	while (true) {
-        	    expiry = JOptionPane.showInputDialog(this,
-        	            "Enter expiry date (MM/YY):");
-
-        	    if (expiry == null) return;
-        	    if (!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")) {
-        	        JOptionPane.showMessageDialog(this,
-        	                "Expiry must be in MM/YY format.");
+        	while(true){
+        	    expiry=JOptionPane.showInputDialog(this,"Enter expiry date (MM/YY):");
+        	    if(expiry==null) {
+        	    	return;
+        	    }
+        	    if(!expiry.matches("(0[1-9]|1[0-2])/\\d{2}")){
+        	        JOptionPane.showMessageDialog(this,"Expiry must be in MM/YY format.");
         	        continue;
         	    }
-        	    String[] parts = expiry.split("/");
-        	    int month = Integer.parseInt(parts[0]);
-        	    int year = 2000 + Integer.parseInt(parts[1]);
-
-        	    java.time.YearMonth expiryDate =
-        	            java.time.YearMonth.of(year, month);
-
-        	    if (expiryDate.isBefore(java.time.YearMonth.now())) {
-        	        JOptionPane.showMessageDialog(this,
-        	                "This card has expired.");
+        	    String[] parts=expiry.split("/");
+        	    int month=Integer.parseInt(parts[0]);
+        	    int year=2000+Integer.parseInt(parts[1]);
+        	    java.time.YearMonth expiryDate =java.time.YearMonth.of(year, month);
+        	    if(expiryDate.isBefore(java.time.YearMonth.now())){
+        	        JOptionPane.showMessageDialog(this,"This card has expired.");
         	        continue;
         	    }
         	    break;
         	}
-
             String cvc;
-
-            while (true) {
-                cvc = JOptionPane.showInputDialog(this, "Enter CVC:");
-                if (cvc == null) return;
-                if (cvc.matches("\\d{3,4}")) {
+            while(true){
+                cvc=JOptionPane.showInputDialog(this,"Enter CVC:");
+                if(cvc==null) return;
+                if(cvc.matches("\\d{3}")) {
                     break;
                 }
-                JOptionPane.showMessageDialog(this,
-                        "CVC must be 3 or 4 digits.");
+                JOptionPane.showMessageDialog(this,"CVC must be 3 digits");
             }
-            payment = new CreditDebit(
-                    booking.getDeposit(),
-                    card,
-                    Integer.parseInt(cvc),
-                    expiry);
-
-        } else if (choice == 1) {
-
-            String emp = JOptionPane.showInputDialog(this,
-                    "Employee number:", "EMP-1001");
-
-            payment = new InstitutionalBilling(
-                    booking.getDeposit(),
-                    emp == null ? "EMP-0000" : emp);
-
-        } else {
+            payment=new CreditDebit(booking.getDeposit(),card,Integer.parseInt(cvc),expiry);
+        } 
+        else if(choice==1){
+            String emp=JOptionPane.showInputDialog(this,"Employee number:","EMP-1001");
+            payment = new InstitutionalBilling(booking.getDeposit(),emp==null?"EMP-0000":emp);
+        } 
+        else {
             log("[Payment] Payment skipped.");
             return;
         }
-
-        strategy = payment;
-
+        strategy=payment;
         strategy.pay();
-
         booking.setPayment(payment);
         AppData.bookings.add(booking);
-        log("[Booking] Created "
-                + booking.getBookingId()
-                + " for room "
-                + booking.getRoom().getRoomNumber()
-                + " | total=$"
-                + booking.getTotal()
-                + " | deposit=$"
-                + booking.getDeposit());
-      
-        log("[Payment] Processed "
-                + payment.getClass().getSimpleName());    
+        log("[Booking] Created "+booking.getBookingId()+" for room "+ booking.getRoom().getRoomNumber()+" | total=$" +booking.getTotal()+ " | deposit=$"+booking.getDeposit());
+        log("[Payment] Processed "+payment.getClass().getSimpleName());    
     }
-    
-
     private JPanel buildAdminPanel() {
-        JPanel panel = new JPanel(new BorderLayout(5, 5));
+        JPanel panel=new JPanel(new BorderLayout(5, 5));
+        JTextField roomNum=new JTextField(8);
+        JTextField building=new JTextField(12);
+        JTextField capacity=new JTextField(5);
+        JButton addRoomBtn=new JButton("Add Room");
+        JButton enableBtn=new JButton("Enable Selected");
+        JButton disableBtn=new JButton("Disable Selected");
+        JButton closeBtn=new JButton("Close (Maintenance)");
 
-        JTextField roomNum = new JTextField(8);
-        JTextField building = new JTextField(12);
-        JTextField capacity = new JTextField(5);
-        JButton addRoomBtn = new JButton("Add Room");
-        JButton enableBtn = new JButton("Enable Selected");
-        JButton disableBtn = new JButton("Disable Selected");
-        JButton closeBtn = new JButton("Close (Maintenance)");
-
-        JPanel formRow = new JPanel();
-        formRow.add(new JLabel("Room#:")); formRow.add(roomNum);
-        formRow.add(new JLabel("Building:")); formRow.add(building);
-        formRow.add(new JLabel("Capacity:")); formRow.add(capacity);
+        JPanel formRow=new JPanel();
+        formRow.add(new JLabel("Room#:"));formRow.add(roomNum);
+        formRow.add(new JLabel("Building:"));formRow.add(building);
+        formRow.add(new JLabel("Capacity:"));formRow.add(capacity);
         formRow.add(addRoomBtn);
-
-        JPanel stateRow = new JPanel();
-        stateRow.add(enableBtn); stateRow.add(disableBtn); stateRow.add(closeBtn);
+        JPanel stateRow=new JPanel();
+        stateRow.add(enableBtn);stateRow.add(disableBtn);stateRow.add(closeBtn);
         stateRow.add(new JLabel("  (select a room in Browse & Book tab first)"));
-
-        JTextField newAdminEmail = new JTextField(18);
-        JButton generateAdminBtn = new JButton("Generate Admin Account (Req2 - Singleton)");
-        JPanel cecRow = new JPanel();
+        JTextField newAdminEmail=new JTextField(18);
+        JButton generateAdminBtn=new JButton("Generate Admin Account");
+        JPanel cecRow=new JPanel();
         cecRow.add(new JLabel("New admin's email:"));
         cecRow.add(newAdminEmail);
         cecRow.add(generateAdminBtn);
-
-        JPanel top = new JPanel(new GridLayout(3, 1));
+        JPanel top=new JPanel(new GridLayout(3, 1));
         top.add(formRow);
         top.add(stateRow);
         top.add(cecRow);
-
-        JTextArea note = new JTextArea(
-            "Tip: log in as the Chief Event Coordinator to generate admin accounts:\n"
-          + "  email: coordinator@yorku.ca\n  password: mycoordPassword@12\n\n"
-          + "Room enable/disable/close acts on whichever room row is selected in the\n"
+        JTextArea note=new JTextArea("Tip: log in as the Chief Event Coordinator to generate admin accounts:\n"+"  email: coordinator@yorku.ca\n  password: mycoordPassword@12\n\n"+"Room enable/disable/close acts on whichever room row is selected in the\n"
           + "'Browse & Book' tab (rooms and admin actions share the same room list)."
         );
         note.setEditable(false);
         note.setBackground(panel.getBackground());
-
-        panel.add(top, BorderLayout.NORTH);
-        panel.add(note, BorderLayout.CENTER);
-
-        addRoomBtn.addActionListener(e -> {
-            if (!requireAdmin()) return;
-            try {
-                Room r = new Room(roomNum.getText().trim(), building.getText().trim(),
-                Integer.parseInt(capacity.getText().trim()), "AVAILABLE");
-
+        panel.add(top,BorderLayout.NORTH);
+        panel.add(note,BorderLayout.CENTER);
+        addRoomBtn.addActionListener(e->{
+            if(!requireAdmin()) return;
+            try{
+                Room r=new Room(roomNum.getText().trim(),building.getText().trim(),
+                Integer.parseInt(capacity.getText().trim()),"AVAILABLE");
                 ((Admin) AppData.currentUser).addRoom(r);
                 AppData.rooms.add(r);
-                log("[Admin] Room added: " + r.getRoomNumber());
+                log("[Admin] Room added: "+r.getRoomNumber());
                 refreshRoomTable();
-            } catch (NumberFormatException ex) {
+            }catch (NumberFormatException fail) {
                 JOptionPane.showMessageDialog(this, "Capacity must be a number.");
             }
         });
 
-        enableBtn.addActionListener(e -> {
-            if (!requireAdmin()) return;
-            withSelectedRoom(r -> { ((Admin) AppData.currentUser).enableRoom(r); log("[Admin] Enabled " + r.getRoomNumber()); });
+        enableBtn.addActionListener(e->{
+            if(!requireAdmin()){
+            	return;
+            }
+            withSelectedRoom(r->{ ((Admin) AppData.currentUser).enableRoom(r); log("[Admin] Enabled "+ r.getRoomNumber()); });
         });
-        disableBtn.addActionListener(e -> {
-            if (!requireAdmin()) return;
-            withSelectedRoom(r -> { ((Admin) AppData.currentUser).disableRoom(r); log("[Admin] Disabled " + r.getRoomNumber()); });
+        disableBtn.addActionListener(e-> {
+            if(!requireAdmin()) {
+            	return;
+            }
+            withSelectedRoom(r->{ ((Admin) AppData.currentUser).disableRoom(r);log("[Admin] Disabled "+r.getRoomNumber()); });
         });
-        closeBtn.addActionListener(e -> {
-            if (!requireAdmin()) return;
-            withSelectedRoom(r -> { ((Admin) AppData.currentUser).closeRoom(r); log("[Admin] Closed " + r.getRoomNumber()); });
+        closeBtn.addActionListener(e->{
+            if(!requireAdmin()) {
+            	return;
+            }
+            withSelectedRoom(r->{ ((Admin) AppData.currentUser).closeRoom(r);log("[Admin] Closed "+r.getRoomNumber()); });
         });
-
-        generateAdminBtn.addActionListener(e -> {
-            ChiefEventCoordinator cec = ChiefEventCoordinator.getInstance();
-            if (AppData.currentUser != cec) {
-                JOptionPane.showMessageDialog(this,
-                        "Only the Chief Event Coordinator can generate admin accounts.\n"
-                        + "Log in as coordinator@yorku.ca / mycoordPassword@12 to demo this.");
+        generateAdminBtn.addActionListener(e->{
+            ChiefEventCoordinator cec=ChiefEventCoordinator.getInstance();
+            if (AppData.currentUser!=cec) {
+                JOptionPane.showMessageDialog(this,"Only the Chief Event Coordinator can generate admin accounts.\n"+"Log in as coordinator@yorku.ca / mycoordPassword@12 to demo this.");
                 return;
             }
-            String email = newAdminEmail.getText().trim();
-            if (email.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Enter an email for the new admin.");
+            String email=newAdminEmail.getText().trim();
+            if(email.isEmpty()){
+                JOptionPane.showMessageDialog(this,"Enter an email for the new admin.");
                 return;
             }
-            Admin newAdmin = cec.generateAdminAcc(email);
+            Admin newAdmin=cec.generateAdminAcc(email);
             AppData.users.add(newAdmin);
-            log("[Singleton] ChiefEventCoordinator generated admin " + newAdmin.getAdminId() + " for " + email
-                    + " (temp password logged to console)");
-            JOptionPane.showMessageDialog(this, "Admin account created: " + newAdmin.getAdminId());
+            log("[Singleton] ChiefEventCoordinator generated admin "+newAdmin.getAdminId() +" for "+email+" (temp password logged to console)");
+            JOptionPane.showMessageDialog(this, "Admin account created: "+newAdmin.getAdminId());
         });
-
         return panel;
     }
-
     private boolean requireAdmin() {
-        if (!(AppData.currentUser instanceof Admin)) {
+        if(!(AppData.currentUser instanceof Admin)){
             JOptionPane.showMessageDialog(this, "Log in with an Admin (or Chief Event Coordinator) account first.");
             return false;
         }
         return true;
     }
-
-    private interface RoomAction { void run(Room r); }
-
+    private interface RoomAction{void run(Room r);}
     private void withSelectedRoom(RoomAction action) {
-        int row = roomTable.getSelectedRow();
-        if (row == -1) {
+        int row=roomTable.getSelectedRow();
+        if(row==-1){
             JOptionPane.showMessageDialog(this, "Select a room in the Browse & Book tab first.");
             return;
         }
         action.run(AppData.rooms.get(row));
         refreshRoomTable();
     }
-
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new ConfrenceRoomGui().setVisible(true));
+        SwingUtilities.invokeLater(()->new ConfrenceRoomGui().setVisible(true));
     }
 }
