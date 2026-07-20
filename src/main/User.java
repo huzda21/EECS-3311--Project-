@@ -10,10 +10,10 @@ public abstract class User {
 	
 	public User(String id, String email, String password, boolean isVerified) {
 		super();
-		this.id = id;
-		this.email = email;
-		this.password = password;
-		this.isVerified = isVerified;
+		this.id =id;
+		this.email =email;
+		this.password =password;
+		this.isVerified =isVerified;
 	}
 	
 	
@@ -86,16 +86,9 @@ public abstract class User {
 		return newBooking;
 
 	}
-
-
-
-
 	protected void setVerified(boolean b) {
 		this.isVerified=b;
 	}
-
-
-
 	public abstract String  getRoleName();
 	
 	
