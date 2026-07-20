@@ -1,4 +1,3 @@
-//Concrete implementation of RoomIterator
 package main;
 import java.util.List;
 
