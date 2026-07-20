@@ -10,68 +10,41 @@ public abstract class User {
 	
 	public User(String id, String email, String password, boolean isVerified) {
 		super();
-		this.id =id;
-		this.email =email;
-		this.password =password;
-		this.isVerified =isVerified;
-	}
-	
-	
-	
-	
+		this.id=id;
+		this.email=email;
+		this.password=password;
+		this.isVerified=isVerified;
+	}	
 	public String getId() {
 		return id;
 	}
-
-
-
-
 	public String getEmail() {
 		return email;
 	}
-
-
-
-
 	public String getPassword() {
 		return password;
 	}
-
-
-
-
 	public boolean isVerified() {
 		return isVerified;
 	}
-
-
-
-
 	public boolean login(String passowrd) {
 		return this.password.equals(passowrd);
 	}
-	
 	public void logout() {
 		System.out.println(email+" is logged out");
 	}
-	
 	public abstract double getHourlyRate();
-	
-	
 	public Booking booking(Room room, LocalDateTime start, LocalDateTime end) {
 		if(!isVerified) {
 			throw new IllegalStateException("Account is not verified");
-		}
-		
+		}	
 		if(!room.isAvailable()) {
 			throw new IllegalStateException("The room you are looking for isn't available");	
 		}
 		
 		if(!end.isAfter(start)) {
 			throw new IllegalStateException("tart time must be before end time");	
-
 		}
-		
 		if (!Booking.roomAvailable(room, start, end)) {
 		    throw new IllegalStateException(
 		            "This room is already booked for part of that time range");
