@@ -15,7 +15,6 @@ public class RoomListIterator implements RoomIterator{
 	
 	@Override
 	public Room getNext() {
-		// TODO Auto-generated method stub
 		if(hasMore()) {
 			return rooms.get(index++);
 		}
@@ -25,7 +24,6 @@ public class RoomListIterator implements RoomIterator{
 
 	@Override
 	public boolean hasMore() {
-		// TODO Auto-generated method stub
 		return  index< rooms.size();
 	}
 	
