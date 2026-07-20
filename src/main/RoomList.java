@@ -8,7 +8,6 @@ public class RoomList implements RoomCollection{
 	
 	@Override
 	public RoomIterator createIterator() {
-		// TODO Auto-generated method stub
 		return new RoomListIterator(rooms);
 	}
 	
